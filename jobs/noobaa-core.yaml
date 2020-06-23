@@ -1,0 +1,37 @@
+---
+- job:
+    name: noobaa-core
+    project-type: pipeline
+    sandbox: true
+    concurrent: true
+    properties:
+      - github:
+          url: https://github.com/noobaa/noobaa-core
+      - build-discarder:
+          days-to-keep: 7
+          artifact-days-to-keep: 7
+    pipeline-scm:
+      scm:
+        - git:
+            name: origin
+            # FIXME: using nixpanic's repository for CI
+            url: https://github.com/nixpanic/noobaa-core
+            branches:
+              - ci/centos
+      script-path: noobaa-core.groovy
+      lightweight-checkout: true
+    triggers:
+      - github-pull-request:
+          status-context: ci/centos/noobaa-core
+          #trigger-phrase: '/(re)?test ((all)|(ci/centos/containerized-tests))'
+          permit-all: true
+          # TODO: set github-hooks to true when it is configured in GitHub
+          github-hooks: false
+          cron: 'H/5 * * * *'
+          black-list-target-branches:
+            - ci/centos
+          admin-list:
+            - liranmauda
+            - nixpanic
+          org-list:
+            - noobaa
